@@ -7,12 +7,9 @@ import os
 import sys
 import urllib2
 import config
+import argparse
 from HTMLParser import HTMLParser
 
-ofile_dir = config.EXPORT_DIR + config.URL[-10:] + config.OUTPUT_FORMAT
-posts =		[]
-contents =	[]
-pids = 		[]
 
 def clear_lists():
 	posts[:] = []
@@ -45,8 +42,11 @@ def extract(text, start_pattern, end_pattern):
 def get_last_pagenum(html):
 	pager_html = extract(html, config.PAGER_START, config.PAGER_END)
 	pages_html = extract(pager_html[0], config.A_START, config.A_END)
-	last_num = extract(pages_html[-1], 'pn=', '"')[0]
-	return int(last_num[3:-1])
+	if pages_html:
+		last_num = extract(pages_html[-1], 'pn=', '"')[0]
+		return int(last_num[3:-1])
+	else:
+		return 1
 
 class TitleParser(HTMLParser):
 	def handle_data(self, data):
@@ -59,7 +59,7 @@ class UsernameParser(HTMLParser):
 		post.set_author(data)
 		posts.append(post)
 		# append_file(data + config.DELIMITER)
-		if config.VERBOSE:
+		if VERBOSE:
 			print 'Username:', data
 
 class PostParser():
@@ -74,7 +74,7 @@ class PostParser():
 		content = raw_content[1:-6].replace('\n', '')
 		contents.append(content)
 		# append_file(post_content + config.DELIMITER)
-		if config.VERBOSE:
+		if VERBOSE:
 			print 'Post Content:', post_content
 
 class Post():
@@ -145,7 +145,7 @@ class PageCrawler():
 			raw_pid = extract(reply_html,\
 				config.PID_START, config.PID_END)[0]
 			pid = raw_pid[-12:-1]
-			if config.VERBOSE:
+			if VERBOSE:
 				print 'PID:', pid
 			wrapped_author = extract(reply_html,\
 				config.REPLY_AUTH_START, config.REPLY_AUTH_END)[0]
@@ -154,10 +154,11 @@ class PageCrawler():
 			reply = author[1:-1]
 			raw_content = extract(reply_html,\
 				config.REPLY_CONT_START, config.REPLY_CONT_END)[0]
-			content = extract(raw_content, '>', config.REPLY_CONT_END)[0]
+			content = extract(raw_content,\
+				'>', config.REPLY_CONT_END)[0]
 			reply += ":"
 			reply += content[1:-8].replace(' ', '')
-			if config.VERBOSE:
+			if VERBOSE:
 				print reply
 			for post in posts:
 				if str(post.pid) == pid:
@@ -184,11 +185,29 @@ class PageCrawler():
 # Main section
 ##
 
+# process command line args
+parser = argparse.ArgumentParser(description='Crawl from Tieba Baidu')
+parser.add_argument('-v', dest='verbose', action='store_true',
+	help='verbose additional info')
+parser.add_argument('url', type=str,
+	help='crawl from a URL with "http://" in front')
+args = parser.parse_args()
+VERBOSE = args.verbose
+URL = args.url
+
+if not os.path.exists(config.EXPORT_DIR):
+	os.mkdir(config.EXPORT_DIR)
+	print 'Make directory:', config.EXPORT_DIR
+ofile_dir = config.EXPORT_DIR + URL[-10:] + config.OUTPUT_FORMAT
+posts =		[]
+contents =	[]
+pids = 		[]
+
 # get response from source and decode it
-response = urllib2.urlopen(config.URL)
+response = urllib2.urlopen(URL)
 html = response.read()
 charset = response.headers.getparam('charset')
-print 'Response from:', config.URL
+print 'Response from:', URL
 print 'Source encoding:', charset
 print 'Output encoding:', config.OUTPUT_ENCODING 
 html = html.decode(charset)
@@ -201,8 +220,7 @@ last_page_num = get_last_pagenum(html)
 
 floor_no = 1
 for page_num in range(1, last_page_num + 1):
-# for page_num in range(2, 3):
-	url = config.URL + '?pn=' + str(page_num)
+	url = URL + '?pn=' + str(page_num)
 	append_file('\nPage' + config.DELIMITER + str(page_num))
 	pc = PageCrawler()
 	pc.run(url)

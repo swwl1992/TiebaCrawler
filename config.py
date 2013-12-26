@@ -1,12 +1,10 @@
 # app configuration
-VERBOSE 			= False
 OUTPUT_ENCODING		= 'utf-8'
 OUTPUT_FORMAT		= '.csv'
 DELIMITER			= '|'
 
 # app default variables
 EXPORT_DIR			= 'export/'
-URL 				= 'http://tieba.baidu.com/p/2701957058'
 
 TITLE_START 		= '<h1 class="core_title_txt"'
 TITLE_END			= '</h1>'
