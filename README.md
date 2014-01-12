@@ -1,7 +1,7 @@
 TiebaCrawler
 ============
 
-A web crawler written in python to crawl information from posts on tieba.baidu.com.
+A web crawler written in python to crawl information from posts on [tieba.baidu.com](http://tieba.baidu.com).
 
 ### Recommended dependency
 Platform | Version
@@ -34,7 +34,7 @@ main.py: error: too few arguments
 
 Output file is all garbage code,
 for example many question marks.
-Solution is
+Its solution is
 [here](http://office.microsoft.com/en-001/excel-help/import-or-export-text-txt-or-csv-files-HP010099725.aspx).
 
 > You need to import the CSV and adjust according to the default settings.
