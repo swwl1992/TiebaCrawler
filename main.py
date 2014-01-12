@@ -10,7 +10,6 @@ import config
 import argparse
 from HTMLParser import HTMLParser
 
-
 def clear_lists():
 	posts[:] = []
 	contents[:] = []
@@ -151,35 +150,32 @@ class PageCrawler():
 				config.REPLY_AUTH_START, config.REPLY_AUTH_END)[0]
 			raw_author = extract(wrapped_author, '<a', '</a>')[0]
 			author = extract(raw_author, '>', '<')[0]
-			reply = author[1:-1]
+			reply_author = author[1:-1]
 			raw_content = extract(reply_html,\
 				config.REPLY_CONT_START, config.REPLY_CONT_END)[0]
 			content = extract(raw_content,\
 				'>', config.REPLY_CONT_END)[0]
-			reply += ":"
-			reply += content[1:-8].replace(' ', '')
+			reply_content = content[1:-8].replace(' ', '')
 			if VERBOSE:
-				print reply
+				print reply_author
+				print reply_content
 			for post in posts:
 				if str(post.pid) == pid:
-					post.replies.append(reply)
+					post.replies.append((reply_author, reply_content))
 
 		# write usernames to file
 		append_file('\nUsername')
 		for post in posts:
 			append_file(config.DELIMITER + post.author)
+			for reply in post.replies:
+				append_file(config.DELIMITER + reply[0])
 
 		# write post content to file
 		append_file('\nPost content')
 		for post in posts:
 			append_file(config.DELIMITER + post.cont)
-
-		# write replies to file
-		append_file('\nReplies')
-		for post in posts:
-			append_file(config.DELIMITER)
 			for reply in post.replies:
-				append_file(reply + ';')
+				append_file(config.DELIMITER + reply[1])
 
 ##
 # Main section
@@ -229,6 +225,8 @@ for page_num in range(1, last_page_num + 1):
 	append_file('\nFloor No.')
 	for post in posts:
 		append_file(config.DELIMITER + str(floor_no))
+		for reply in post.replies:
+			append_file(config.DELIMITER + str(floor_no))
 		floor_no += 1
 
 	# clear all the lists
