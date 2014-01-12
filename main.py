@@ -191,6 +191,10 @@ args = parser.parse_args()
 VERBOSE = args.verbose
 URL = args.url
 
+if URL.find('http') == -1:
+	print 'Your URL must contain "http"'
+	sys.exit(1)
+
 if not os.path.exists(config.EXPORT_DIR):
 	os.mkdir(config.EXPORT_DIR)
 	print 'Make directory:', config.EXPORT_DIR
