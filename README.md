@@ -19,7 +19,7 @@ Name | Description
 Output encoding | UTF-8
 Export directory | export/
 Output format | CSV
-Delimiter | Horizontal line
+Delimiter | Vertical line
 
 ### Execution
 $ python main.py [-v] [-h] url
