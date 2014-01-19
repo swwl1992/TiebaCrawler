@@ -22,10 +22,15 @@ Output format | CSV
 Delimiter | Vertical line
 
 ### Execution
+```
 $ python main.py [-v] [-h] url
+```
 
 ### Help
+```
 $ python main.py -h
+$ python main.py --help
+```
 
 ### Troubleshooting
 main.py: error: too few arguments
